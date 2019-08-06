@@ -6,7 +6,7 @@ import Html.Events exposing (onClick)
 import Http
 
 
-main : Program() Model Msg
+main : Program () Model Msg
 main =
     Browser.element
         { init = init
@@ -16,23 +16,30 @@ main =
         }
 
 
+
 -- MODEL
+
 
 type alias Model =
     { result : String
     }
 
-init : () -> (Model, Cmd Msg)
+
+init : () -> ( Model, Cmd Msg )
 init _ =
     ( { result = "" }
     , Cmd.none
     )
 
+
+
 -- UPDATE
+
 
 type Msg
     = Click
     | GotRepo (Result Http.Error String)
+
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -46,15 +53,18 @@ update msg model =
             )
 
         GotRepo (Ok repo) ->
-            ( { model | result = repo}, Cmd.none )
+            ( { model | result = repo }, Cmd.none )
 
         GotRepo (Err error) ->
-            ( { model | result = Debug.toString error}, Cmd.none )
+            ( { model | result = Debug.toString error }, Cmd.none )
+
+
 
 -- VIEW
 
+
 view model =
-    div[]
+    div []
         [ button [ onClick Click ] [ text "Get Repository info" ]
-        , p [][ text model.result ]
+        , p [] [ text model.result ]
         ]

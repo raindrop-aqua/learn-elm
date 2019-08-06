@@ -7,6 +7,7 @@ import Html.Events exposing (onInput, onSubmit)
 import Http
 import Json.Decode as D
 
+
 main : Program () Model Msg
 main =
     Browser.element
@@ -16,12 +17,16 @@ main =
         , subscriptions = \_ -> Sub.none
         }
 
+
+
 -- MODEL
+
 
 type alias Model =
     { input : String
     , userState : UserState
     }
+
 
 type UserState
     = Init
@@ -29,12 +34,17 @@ type UserState
     | Loaded User
     | Failed Http.Error
 
-init : () -> (Model, Cmd Msg)
+
+init : () -> ( Model, Cmd Msg )
 init _ =
     ( Model "" Init
-    , Cmd.none)
+    , Cmd.none
+    )
+
+
 
 -- UPDATE
+
 
 type Msg
     = Input String
@@ -42,34 +52,36 @@ type Msg
     | Receive (Result Http.Error User)
 
 
-update : Msg -> Model -> (Model, Cmd Msg)
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Input newInput ->
             ( { model | input = newInput }, Cmd.none )
 
         Send ->
-            (
-                { model
+            ( { model
                 | input = ""
                 , userState = Waiting
+              }
+            , Http.get
+                { url = "http://api.github.com/users/" ++ model.input
+                , expect = Http.expectJson Receive userDecoder
                 }
-                , Http.get
-                    { url = "http://api.github.com/users/" ++ model.input
-                    , expect = Http.expectJson Receive userDecoder
-                    }
             )
 
-        Receive ( Ok user ) ->
+        Receive (Ok user) ->
             ( { model | userState = Loaded user }, Cmd.none )
 
-        Receive ( Err e ) ->
+        Receive (Err e) ->
             ( { model | userState = Failed e }, Cmd.none )
+
+
 
 -- VIEW
 
+
 view model =
-    div[]
+    div []
         [ Html.form [ onSubmit Send ]
             [ input
                 [ onInput Input
@@ -81,12 +93,11 @@ view model =
             , button
                 [ disabled
                     ((model.userState == Waiting)
-                        || String.isEmpty(String.trim model.input)
+                        || String.isEmpty (String.trim model.input)
                     )
                 ]
                 [ text "Submit" ]
             ]
-
         , case model.userState of
             Init ->
                 text ""
@@ -100,7 +111,7 @@ view model =
                     , target "_blank"
                     ]
                     [ img [ src user.avatarUrl, width 200 ] []
-                    , div [][ text user.name ]
+                    , div [] [ text user.name ]
                     , div []
                         [ case user.bio of
                             Just bio ->
@@ -115,7 +126,10 @@ view model =
                 div [] [ text (Debug.toString error) ]
         ]
 
+
+
 -- DATA
+
 
 type alias User =
     { login : String

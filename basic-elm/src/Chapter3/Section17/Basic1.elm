@@ -1,3 +1,5 @@
+module Main exposing (main)
+
 import Html exposing (Html, a, text)
 import Html.Attributes exposing (href)
 
